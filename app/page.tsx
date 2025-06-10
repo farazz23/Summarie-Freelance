@@ -2,6 +2,7 @@ import BgGradient from '@/components/common/BgGradient';
 import DemoSection from '@/components/home/DemoSection';
 import HeroSection from '@/components/home/HeroSection';
 import HowItWorks from '@/components/home/HowItWorks';
+import PricingSection from '@/components/home/PricingSection';
 
 export default function HomePage() {
   return (
@@ -11,6 +12,7 @@ export default function HomePage() {
         <HeroSection />
         <DemoSection />
         <HowItWorks />
+        <PricingSection />
       </div>
     </div>
   );
