@@ -3,6 +3,8 @@ import React from 'react';
 import UploadFormInput from './UploadFormInput';
 import { z } from 'zod/v4';
 import { useUploadThing } from '@/utils/uploadthing';
+import { toast } from 'react-hot-toast';
+import { generatePDFSummary } from '@/action/upload-action';
 
 const Schema = z.object({
   file: z
@@ -16,43 +18,66 @@ const Schema = z.object({
       'File must be a PDF'
     ),
 });
+
 const UploadForm = () => {
   const { startUpload, routeConfig } = useUploadThing('pdfUploader', {
+    onUploadBegin: ({ file }: any) => {
+      toast.success('Upload has just begun ');
+    },
     onClientUploadComplete: () => {
-      console.log('uploaded successfully!');
+      toast.success('Uploaded successfully!');
     },
-    onUploadError: () => {
-      console.log('error occurred while uploading');
-    },
-    onUploadBegin: ({ file }) => {
-      console.log('upload has begun for', file);
+    onUploadError: (err: any) => {
+      toast.error('Error occurred while uploading');
     },
   });
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('submitted');
+    const loadingToast = toast.loading('Presessing the PDF... ');
     const formData = new FormData(e.currentTarget);
     const file = formData.get('file') as File;
 
-    //validating the fields
+    // TODO: validating the fields
     const validatingFields = Schema.safeParse({ file });
-    console.log(validatingFields);
+    console.log('validatingFields: ', validatingFields);
     if (!validatingFields.success) {
-      console.log(
-        validatingFields.error.flatten().fieldErrors.file?.[0] ?? 'Invalid file'
+      toast.error(
+        validatingFields.error.flatten().fieldErrors.file?.[0] ??
+          'Check your file.'
       );
-    }
-
-    // upload the file to the server
-    const response = await startUpload([file]);
-    if (!response) {
+      toast.dismiss(loadingToast);
       return;
     }
-    // parse the pdf using lang chain
-    // summarize the pdf using AI
-    // save the summary to the database
-    // redirect to the [id] summary page
+
+    // TODO: upload the file to the server
+    const resp = await startUpload([file]);
+    console.log('resp', resp);
+
+    if (!resp) {
+      toast.error('Upload failed');
+      toast.dismiss(loadingToast);
+      return;
+    }
+
+    // TODO: parse the pdf using lang chain
+    const result = await generatePDFSummary(resp);
+    if (result.success) {
+      toast.dismiss(loadingToast);
+      toast.success('PDF Successfully processed!');
+      console.log('📄Extracted Text:\n', result.data);
+    } else {
+      toast.dismiss(loadingToast);
+      toast.error('Processing failed');
+    }
+
+    // TODO:  summarize the pdf using AI
+    // TODO: save the summary to the database
+    // TODO: redirect to the [id] summary page
+
+    // TODO: Clean the Input Space
   };
+
   return (
     <div className="flex flex-col gap-8 w-full max-w-2xl mx-auto">
       <UploadFormInput onSubmit={handleSubmit} />

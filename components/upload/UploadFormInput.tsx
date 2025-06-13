@@ -15,7 +15,7 @@ const UploadFormInput = ({ onSubmit }: UploadFormInputes) => {
           name="file"
           accept="application/pdf"
           required
-          className=""
+          className="cursor-pointer"
         />
         <Button>Upload Your PDF</Button>
       </div>
