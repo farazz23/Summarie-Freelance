@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useRef } from 'react';
 import UploadFormInput from './UploadFormInput';
 import { z } from 'zod/v4';
 import { useUploadThing } from '@/utils/uploadthing';
@@ -20,6 +20,7 @@ const Schema = z.object({
 });
 
 const UploadForm = () => {
+  const fileInputRef = useRef<HTMLFormElement>(null);
   const { startUpload, routeConfig } = useUploadThing('pdfUploader', {
     onUploadBegin: ({ file }: any) => {
       toast.success('Upload has just begun ');
@@ -34,11 +35,10 @@ const UploadForm = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const loadingToast = toast.loading('Presessing the PDF... ');
     const formData = new FormData(e.currentTarget);
     const file = formData.get('file') as File;
 
-    // TODO: validating the fields
+    // TODO: 1. validating the fields
     const validatingFields = Schema.safeParse({ file });
     console.log('validatingFields: ', validatingFields);
     if (!validatingFields.success) {
@@ -46,41 +46,43 @@ const UploadForm = () => {
         validatingFields.error.flatten().fieldErrors.file?.[0] ??
           'Check your file.'
       );
-      toast.dismiss(loadingToast);
+      // toast.dismiss(loadingToast);
       return;
     }
 
-    // TODO: upload the file to the server
+    // TODO: 2. upload the file to the server i.e (uploadthing)
     const resp = await startUpload([file]);
     console.log('resp', resp);
 
     if (!resp) {
       toast.error('Upload failed');
-      toast.dismiss(loadingToast);
+      // toast.dismiss(loadingToast);
       return;
     }
 
-    // TODO: parse the pdf using lang chain
+    const loadingToast = toast.loading('Processing PDF');
+    // TODO: 3.parse the pdf using lang chain
     const result = await generatePDFSummary(resp);
     if (result.success) {
       toast.dismiss(loadingToast);
-      toast.success('PDF Successfully processed!');
+      toast.success(result.message);
       console.log('📄Extracted Text:\n', result.data);
+      fileInputRef?.current?.reset();
     } else {
       toast.dismiss(loadingToast);
-      toast.error('Processing failed');
+      toast.error(result.message);
     }
 
-    // TODO:  summarize the pdf using AI
-    // TODO: save the summary to the database
-    // TODO: redirect to the [id] summary page
+    // TODO:  4. summarize the pdf using AI
+    // TODO: 5. save the summary to the database
+    // TODO: 6. redirect to the [id] summary page
 
-    // TODO: Clean the Input Space
+    // TODO: 7. Clean the Input Space
   };
 
   return (
     <div className="flex flex-col gap-8 w-full max-w-2xl mx-auto">
-      <UploadFormInput onSubmit={handleSubmit} />
+      <UploadFormInput onSubmit={handleSubmit} ref={fileInputRef} />
     </div>
   );
 };
