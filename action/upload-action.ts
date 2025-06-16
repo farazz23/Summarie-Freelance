@@ -4,16 +4,19 @@ import { getDBConnection } from "@/lib/dbConnection";
 import generateSummaryFromGeminiAI from "@/lib/geminiai";
 import { fetchAndExtractPdfText } from "@/lib/langchain";
 import { generateSummaryFromOpenAI } from "@/lib/openai";
+import { formatFileNameAsTitle } from "@/utils/formatFileNameAsTitle";
 import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 interface PDFSummaryType {
   userId?: string,
   fileUrl: string,
   summary: string,
   title: string,
   fileName: string
-
-
 }
+
+
+
 export async function generatePDFSummary(uploadResponse: [
   {
     serverData: {
@@ -73,13 +76,15 @@ export async function generatePDFSummary(uploadResponse: [
       };
     }
 
+    const formattedFileName = formatFileNameAsTitle(fileName)
+
     //TODO: finally returning the summary to the frontend response...
     return {
       success: true,
       message: "Summary generated successfully",
       data: {
         summary,
-        title: fileName
+        title: formattedFileName
       }, // ✅ returning the actual summary, not raw text
     };
   } catch (error: any) {
@@ -100,24 +105,23 @@ async function savePDFSummary({ userId, fileUrl, summary, title, fileName }: {
   title: string,
   fileName: string
 
-
 }) {
   try {
     const sql = await getDBConnection();
     await sql`INSERT INTO pdf_summaries (
-    user_id,
-    original_file_url,
-     summary_text,
-       title,
-        file_name
-        ) VALUES (
-        ${userId},
-        ${fileUrl},
-        ${summary},
-        'completed',
-        ${title},
-        ${fileName}
-    );`;
+                 user_id,
+                    original_file_url,
+                       summary_text,
+                          title,
+                              file_name
+              )  VALUES (
+                     ${userId},
+                       ${fileUrl},
+                        ${summary},
+                          ${title},
+                           ${fileName}
+);`;
+    console.log("I have inserted the pdf... ")
   } catch (err: any) {
     console.error("Error saving PDF summary", err)
     throw new Error
@@ -129,7 +133,7 @@ export async function storePDFSumaryAction({
 }: PDFSummaryType) {
   //user is logged in and has a userid or not
   // save pdf summary into the database
-  let saveSummaries;
+  let saveSummary: any;
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -139,7 +143,7 @@ export async function storePDFSumaryAction({
       }
     }
 
-    saveSummaries = await savePDFSummary({
+    saveSummary = await savePDFSummary({
       userId, fileUrl, summary, title, fileName
     });
 
@@ -150,10 +154,6 @@ export async function storePDFSumaryAction({
       }
     }
 
-    return {
-      success: true,
-      message: 'PDF sumary saved successfully'
-    }
 
   } catch (err: any) {
     return {
@@ -161,6 +161,19 @@ export async function storePDFSumaryAction({
       message: err instanceof Error ? err.message : "Error uploading saving pDF summary"
     }
   }
+
+
+  // Revalidate cache
+  revalidatePath(`/summaries/${saveSummary.data.id}`)
+
+  return {
+    success: true,
+    message: 'PDF sumary saved successfully',
+    data: {
+      id: saveSummary.id
+    }
+  }
+
 }
 
 

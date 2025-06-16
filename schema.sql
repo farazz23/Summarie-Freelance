@@ -1,62 +1,54 @@
--- Enable the uuid-ossp extension (run once)
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- Correct table creation
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  emial VARCHAR(250) UNIQUE NOT NULL,
-  full_name VARCHAR(255),
-  customer_id VARCHAR(255) UNIQUE,
-  price_id VARCHAR(255),
+create table if not exists users (
+  id UUID DEFAULT gen_random_uuid(),
+  email VARCHAR(250)  UNIQUE not null,
+  fullname varchar(250) not null,
+  customer_id varchar(250) not null unique,
+  price_id varchar(250) not null,
   status VARCHAR(50) DEFAULT 'inactive',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE TABLE pdf_summaries (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id VARCHAR(255) NOT NULL,
-  original_file_url TEXT NOT NULL,
-  summary_text TEXT NOT NULL ,
-  status VARCHAR(255) DEFAULT 'completed',
+create table if not exists pdf_summaries (
+  id UUID primary key default  gen_random_uuid(),
+  user_id varchar(255) not null,
+  original_file_url text not null,
+  summary_text text not null,
+  status varchar(255) default 'completed',
   title text,
-  file_name TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  file_name text,
+  created_at timestamp with time zone default current_timestamp,
+  updated_at timestamp with time zone default current_timestamp
+);
+create table if not exists payment (
+  id UUID primary key default gen_random_uuid(),
+  amount integer not null,
+  status varchar(255) not null,
+  stripe_payment_id varchar(255) unique not null,
+  price_id varchar(255) not null,
+  user_email varchar(255) not null references users(email),
+  created_at timestamp with time zone default current_timestamp,
+  updated_at timestamp with time zone default current_timestamp
 );
 
-CREATE TABLE payment (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  amount INTEGER NOT NULL,
-  status VARCHAR(255) NOT NULL,
-  stripe_payment_id VARCHAR(255) UNIQUE NOT NULL,
-  price_id VARCHAR(255) NOT NULL,
-  user_email VARCHAR(255) NOT NULL REFERENCES users(email),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-);
+create or replace function update_updated_at_column()
+returns trigger as $$
+begin 
+  new.updated_at = current_timestamp;
+  return new;
+end;
+$$ language plpgsql;
 
--- creted update_AT tigger function
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURN TRIGGER AS $$
-BEGIN 
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
+create trigger update_users_updated_at
+    before update on users
+    for each row
+    execute function update_updated_at_column();
 
--- Add triggeres to the update updated_at
-CREATE TRIGGER update_users_updated_at
-      BEFORE UPDATE ON users
-      FOR EACH ROW
-      EXECUTE FUNCTION update_updated_at_column();
+create trigger update_pdf_summaries_updated_at
+    before update on pdf_summaries
+    for each row
+    execute function update_updated_at_column();
 
-CREATE TRIGGER update_pdf_summries_updated_at 
-      BEFORE UPDATE ON pdf_summaries
-      FOR EACH ROW
-      EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_payments_updated_at 
-      BEFORE UPDATE ON payment
-      FOR EACH ROW 
-      EXECUTE FUNCTION update_updated_at_column();
+create trigger update_payments_updated_at
+    before update on payment
+    for each row
+    execute function update_updated_at_column();

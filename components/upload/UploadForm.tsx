@@ -8,6 +8,7 @@ import {
   generatePDFSummary,
   storePDFSumaryAction,
 } from '@/action/upload-action';
+import { useRouter } from 'next/navigation';
 
 const Schema = z.object({
   file: z
@@ -23,6 +24,7 @@ const Schema = z.object({
 });
 
 const UploadForm = () => {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLFormElement>(null);
   const { startUpload, routeConfig } = useUploadThing('pdfUploader', {
     onUploadBegin: ({ file }: any) => {
@@ -37,58 +39,65 @@ const UploadForm = () => {
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const file = formData.get('file') as File;
+    try {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      const file = formData.get('file') as File;
 
-    // TODO: 1. validating the fields
-    const validatingFields = Schema.safeParse({ file });
-    console.log('validatingFields: ', validatingFields);
-    if (!validatingFields.success) {
-      toast.error(
-        validatingFields.error.flatten().fieldErrors.file?.[0] ??
-          'Check your file.'
-      );
-      // toast.dismiss(loadingToast);
-      return;
-    }
-
-    // TODO: 2. upload the file to the server i.e (uploadthing)
-    const resp = await startUpload([file]);
-    console.log('resp', resp);
-
-    if (!resp) {
-      toast.error('Upload failed');
-      // toast.dismiss(loadingToast);
-      return;
-    }
-
-    const loadingToast = toast.loading('Processing PDF');
-    // TODO: 3.parse the pdf using lang chain
-    const result = await generatePDFSummary(resp);
-    const { data = null, message = null } = result || {};
-    console.log('📄Extracted Text:\n', result);
-
-    if (data) {
-      toast.success(result.message);
-      fileInputRef?.current?.reset();
-      if (result.data) {
-        await storePDFSumaryAction({
-          fileUrl: resp[0].serverData.file.url,
-          summary: result.data.summary,
-          title: result.data.title,
-          fileName: resp[0].serverData.fileName,
-        });
+      // TODO: 1. validating the fields
+      const validatingFields = Schema.safeParse({ file });
+      console.log('validatingFields: ', validatingFields);
+      if (!validatingFields.success) {
+        toast.error(
+          validatingFields.error.flatten().fieldErrors.file?.[0] ??
+            'Check your file.'
+        );
+        // toast.dismiss(loadingToast);
+        return;
       }
+
+      // TODO: 2. upload the file to the server i.e (uploadthing)
+      const resp = await startUpload([file]);
+      console.log('resp', resp);
+
+      if (!resp) {
+        toast.error('Upload failed');
+        // toast.dismiss(loadingToast);
+        return;
+      }
+
+      const loadingToast = toast.loading('Processing PDF');
+      // TODO: 3.parse the pdf using lang chain
+      const result = await generatePDFSummary(resp);
+
+      // TODO:  4. summarize the pdf using AI
+      const { data = null, message = null } = result || {};
+      console.log('📄Extracted Text:\n', result);
+
+      // TODO: 5. save the summary to the database
+      if (data) {
+        let storeResult: any;
+        toast.success(result.message);
+        fileInputRef.current?.reset();
+        if (result.data) {
+          storeResult = await storePDFSumaryAction({
+            fileUrl: resp[0].serverData.file.url,
+            summary: result.data.summary,
+            title: result.data.title,
+            fileName: resp[0].serverData.fileName,
+          });
+        }
+        toast.success('Summary Generated');
+        fileInputRef?.current?.reset();
+        // TODO: 6. redirect to the [id] summary page
+        router.push(`/summaries/${storeResult.data.id}`);
+      }
+      toast.dismiss(loadingToast);
+    } catch (err: any) {
+      toast.error(err.message);
+      console.log('Error is here ', err);
+      fileInputRef.current?.reset();
     }
-
-    // const {data = null , message= null }= result || {};
-    //  if(data)
-    // TODO:  4. summarize the pdf using AI
-    // TODO: 5. save the summary to the database
-    // TODO: 6. redirect to the [id] summary page
-
-    // TODO: 7. Clean the Input Space
   };
 
   return (
