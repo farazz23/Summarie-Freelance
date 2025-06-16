@@ -4,7 +4,10 @@ import UploadFormInput from './UploadFormInput';
 import { z } from 'zod/v4';
 import { useUploadThing } from '@/utils/uploadthing';
 import { toast } from 'react-hot-toast';
-import { generatePDFSummary } from '@/action/upload-action';
+import {
+  generatePDFSummary,
+  storePDFSumaryAction,
+} from '@/action/upload-action';
 
 const Schema = z.object({
   file: z
@@ -63,16 +66,24 @@ const UploadForm = () => {
     const loadingToast = toast.loading('Processing PDF');
     // TODO: 3.parse the pdf using lang chain
     const result = await generatePDFSummary(resp);
-    if (result.success) {
-      toast.dismiss(loadingToast);
+    const { data = null, message = null } = result || {};
+    console.log('📄Extracted Text:\n', result);
+
+    if (data) {
       toast.success(result.message);
-      console.log('📄Extracted Text:\n', result.data);
       fileInputRef?.current?.reset();
-    } else {
-      toast.dismiss(loadingToast);
-      toast.error(result.message);
+      if (result.data) {
+        await storePDFSumaryAction({
+          fileUrl: resp[0].serverData.file.url,
+          summary: result.data.summary,
+          title: result.data.title,
+          fileName: resp[0].serverData.fileName,
+        });
+      }
     }
 
+    // const {data = null , message= null }= result || {};
+    //  if(data)
     // TODO:  4. summarize the pdf using AI
     // TODO: 5. save the summary to the database
     // TODO: 6. redirect to the [id] summary page
