@@ -4,7 +4,7 @@ import './globals.css';
 import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
 import { ClerkProvider } from '@clerk/nextjs';
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

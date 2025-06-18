@@ -1,4 +1,6 @@
 import BgGradient from '@/components/common/BgGradient';
+import EmptySummaryState from '@/components/dashboard/EmptySummaryState';
+// import EmptySummaryState from '@/components/dashboard/empty-summary';
 import SummaryCard from '@/components/dashboard/SummaryCard';
 import { Button } from '@/components/ui/button';
 import { getSummaries } from '@/lib/summaries';
@@ -41,27 +43,33 @@ const Dashboard = async () => {
               </Link>
             </Button>
           </div>
-          <div className="mb-6 ">
-            <div className="bg-rose-50 border border-rose-200 rounded-lg p-4 text-rose-800">
-              <p className="text-sm">
-                You've reched the limit of 5 upload on the Basic plan.{' '}
-                <Link
-                  href="/#pricing"
-                  className="text-rose-400 underline font-medium underline-offset-4 inline-flex items-center"
-                >
-                  Click here to Upgrade to pro{'  '}
-                  <ArrowRight className="w-4 h-4 inline-block" />
-                </Link>{' '}
-                for unlimited uploads
-              </p>
+          {summaries.length >= uploadLimit && (
+            <div className="mb-6 ">
+              <div className="bg-rose-50 border border-rose-200 rounded-lg p-4 text-rose-800">
+                <p className="text-sm">
+                  You've reched the limit of 5 upload on the Basic plan.{' '}
+                  <Link
+                    href="/#pricing"
+                    className="text-rose-400 underline font-medium underline-offset-4 inline-flex items-center"
+                  >
+                    Click here to Upgrade to pro{'  '}
+                    <ArrowRight className="w-4 h-4 inline-block" />
+                  </Link>{' '}
+                  for unlimited uploads
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 sm:px-0">
-            {summaries.map((summary, index) => (
-              <SummaryCard key={index} summary={summary} />
-            ))}
-          </div>
+          {summaries.length === 0 ? (
+            <EmptySummaryState />
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 sm:px-0">
+              {summaries.map((summary, index) => (
+                <SummaryCard key={index} summary={summary} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </main>
