@@ -8,6 +8,8 @@ create table if not exists users (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+
 create table if not exists pdf_summaries (
   id UUID primary key default  gen_random_uuid(),
   user_id varchar(255) not null,
@@ -19,6 +21,8 @@ create table if not exists pdf_summaries (
   created_at timestamp with time zone default current_timestamp,
   updated_at timestamp with time zone default current_timestamp
 );
+
+
 create table if not exists payment (
   id UUID primary key default gen_random_uuid(),
   amount integer not null,
