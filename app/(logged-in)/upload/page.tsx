@@ -1,3 +1,4 @@
+import React from 'react';
 import BgGradient from '@/components/common/BgGradient';
 import { MotionDiv } from '@/components/common/motion-wrapper';
 import UploadForm from '@/components/upload/UploadForm';
@@ -7,8 +8,7 @@ import { containerVarients, itemVariants } from '@/utils/constants';
 import { currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 
-import React from 'react';
-
+export const maxDuration = 60;
 const UploadPage = async () => {
   const user = await currentUser();
   if (!user?.id) {
