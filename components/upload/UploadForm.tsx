@@ -6,10 +6,12 @@ import { useUploadThing } from '@/utils/uploadthing';
 // import { toast } from 'react-hot-toast';
 import {
   generatePDFSummary,
+  generatePDFText,
   storePDFSumaryAction,
 } from '@/action/upload-action';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { formatFileNameAsTitle } from '@/utils/formatFileNameAsTitle';
 
 const Schema = z.object({
   file: z
@@ -58,46 +60,63 @@ const UploadForm = () => {
       }
 
       // TODO: 2. upload the file to the server i.e (uploadthing)
-      const resp = await startUpload([file]);
-      console.log('resp', resp);
+      const uploadResp = await startUpload([file]);
+      // console.log('resp', resp);
       toast('Uploaded to Server', {
         description: 'Hang on, We are prearing your summary',
       });
-      if (!resp) {
-        toast.error('Upload failed');
-        toast('Oops, Failed to Upload', {
-          description: 'Please try after a short break',
+      if (!uploadResp) {
+        // toast.error('Upload failed');
+        toast('Something Went wrong', {
+          description: 'Please use a different file',
         });
         return;
       }
 
-      // TODO: 3.parse the pdf using lang chain
-      const result = await generatePDFSummary(resp);
-      // TODO:  4. summarize the pdf using AI
-      const { data = null, message = null } = result || {};
-      // console.log('📄Extracted Text:\n', result);
+      toast('Processing PDF', {
+        description: 'Hand tight! Our AI is reading through your document!',
+      });
 
-      // TODO: 5. save the summary to the database
-      if (data) {
-        let storeResult: any;
-        toast(`${result.message}`);
-        fileInputRef.current?.reset();
-        if (result.data) {
-          storeResult = await storePDFSumaryAction({
-            fileUrl: resp[0].serverData.file.url,
-            summary: result.data.summary,
-            title: result.data.title,
-            fileName: resp[0].serverData.fileName,
-          });
-        }
+      let storeResult: any;
+      fileInputRef.current?.reset();
 
-        toast('Summary Generated', {
-          description: 'Enjoy your Summary,See you next time',
+      const formattedFileName = formatFileNameAsTitle(file.name);
+
+      const result = await generatePDFText({
+        fileURL: uploadResp[0].serverData.file.url,
+        // fileName: file.name,
+      });
+
+      toast('Generating PDF Summary', {
+        description: 'Hand tight! Our AI is reading through your document!',
+      });
+
+      const summaryResult = await generatePDFSummary({
+        pdfText: result?.data?.pdfText ?? '',
+        fileName: formattedFileName,
+      });
+
+      toast('Saving PDF Summary', {
+        description: 'Hand tight! Our AI is reading through your document!',
+      });
+
+      const { data = null, message = null } = summaryResult || {};
+
+      if (data?.summary) {
+        storeResult = await storePDFSumaryAction({
+          fileUrl: uploadResp[0].serverData.file.url,
+          summary: data?.summary,
+          title: formattedFileName,
+          fileName: uploadResp[0].serverData.fileName,
         });
-        fileInputRef?.current?.reset();
-        // TODO: 6. redirect to the [id] summary page
-        router.push(`/summaries/${storeResult.data.id}`);
       }
+
+      toast('Summary Generated', {
+        description: 'Your PDF has been successfully summarized and saved',
+      });
+      fileInputRef?.current?.reset();
+      // TODO: 6. redirect to the [id] summary page
+      router.push(`/summaries/${storeResult.data.id}`);
     } catch (err: any) {
       toast.error(err.message);
       console.log('Error is here ', err);
