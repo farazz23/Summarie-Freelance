@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Summaire - AI-Powered Summary Generator
 
-## Getting Started
+Summaire is a modern, AI-based summary generator application that allows users to upload documents and get concise, structured summaries with section-wise breakdowns. Built with Next.js, TypeScript, and modern UI practices, Summaire is designed for clarity, speed, and scalability.
 
-First, run the development server:
+# ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+✅ Upload PDF or text content for automatic summarization
+✅ AI-driven section-wise summaries with clean UI display
+✅ Responsive design with Tailwind CSS and smooth animations
+✅ Interactive navigation between summary sections
+✅ Real-time progress indicator for better user experience
+✅ Download-ready summary view
+✅ Contact & social links in the footer
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# ⚙️ Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+-Next.js 🔥 (App Router, Server Actions)
+-TypeScript
+-Tailwind CSS
+-Framer Motion (for smooth animations)
+-Lucide React Icons
+-Zod (for validation)
+-UploadThing (for file uploads)
+-AI Text Summarization API (Optional: Specify if you're using OpenAI or custom model)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 🚀 Getting Started Prerequisites:
 
-## Learn More
+-Node.js 18+
+-npm or yarn
 
-To learn more about Next.js, take a look at the following resources:
+Installation:
+-git clone https://github.com/your-username/summaire.git
+-cd summaire
+-npm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Run the Development Server:
+-npm run dev
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 📁 Project Structure
 
-## Deploy on Vercel
+components/ # Reusable UI components
+app/ # Next.js App directory
+styles/ # Global and component-specific styles
+utils/ # Helper functions and configurations
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# 🤝 Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+# 📄 License
+
+MIT License — Feel free to use and modify this project.
+
+# 🌟 Future Improvements
+
+-Download Summary as PDF
+-Support for DOCX uploads
+-Multi-language summarization
+-User authentication
+-AI-powered summary customization
+
+# 💡 Why Summaire?
+
+Summaire combines modern web technologies with AI to simplify complex information into easy-to-understand summaries — ideal for students, professionals, and anyone dealing with large documents.
