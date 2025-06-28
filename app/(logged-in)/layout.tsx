@@ -12,7 +12,7 @@ export default async function Layout({
   if (!user) redirect('/sign-in');
 
   const hasActiveSubscription = await getSubscriptionStatus(user);
-  if (hasActiveSubscription) {
+  if (!hasActiveSubscription) {
     return <UpgradeRequired />;
   }
   return <>{children}</>;
