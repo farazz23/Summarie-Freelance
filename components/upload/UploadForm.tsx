@@ -27,6 +27,7 @@ const Schema = z.object({
 const UploadForm = () => {
   const router = useRouter();
   const fileInputRef = useRef<HTMLFormElement>(null);
+
   const { startUpload, routeConfig } = useUploadThing('pdfUploader', {
     // onUploadBegin: ({ file }: any) => {
     //   toast('Upload has just begun ');

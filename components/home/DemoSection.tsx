@@ -1,7 +1,39 @@
 import { Pizza } from 'lucide-react';
 import React from 'react';
-import { MotionH3 } from '../common/motion-wrapper';
+import { MotionDiv, MotionH3 } from '../common/motion-wrapper';
 import SummaryViewer from '../summaries/summary-viewer';
+
+const dummySummary = `
+# Introduction to AI
+- Artificial Intelligence (AI) refers to machines simulating human intelligence.
+- AI is transforming industries like healthcare, finance, and transportation.
+- This summary provides an overview of key AI concepts and advancements.
+
+# Machine Learning
+- Machine Learning (ML) is a core subset of AI that enables systems to learn from data.
+- Popular ML techniques include supervised, unsupervised, and reinforcement learning.
+- Algorithms like Decision Trees, SVM, and Neural Networks are widely used.
+
+# Deep Learning
+- Deep Learning utilizes multi-layered neural networks to model complex patterns.
+- It powers breakthroughs in computer vision, natural language processing, and speech recognition.
+- Frameworks like TensorFlow and PyTorch accelerate deep learning development.
+
+# AI in Real-world Applications
+- AI is used in virtual assistants, autonomous vehicles, and medical diagnostics.
+- Chatbots and recommendation systems improve customer experiences.
+- AI models help detect fraud and optimize supply chains.
+
+# Ethical Considerations
+- AI raises concerns around privacy, bias, and job displacement.
+- Responsible AI development focuses on fairness, transparency, and accountability.
+- Global efforts are underway to regulate and guide ethical AI practices.
+
+# Conclusion
+- AI is revolutionizing the way we interact with technology.
+- Continuous research and ethical development are crucial for AI's future.
+- Businesses and society must adapt to leverage AI responsibly.
+`;
 
 const DemoSection = () => {
   return (
@@ -28,7 +60,13 @@ const DemoSection = () => {
 
           {/* Summary Pic */}
           <div className="flex justify-center items-center px-2 sm:px-4 lg:px-6">
-            {/* <SummaryViewer summary={}/> */}
+            <MotionDiv
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <SummaryViewer summary={dummySummary} />
+            </MotionDiv>
           </div>
         </div>
       </div>
