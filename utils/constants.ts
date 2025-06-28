@@ -7,7 +7,7 @@ export const pricing_Plans = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 0,
+    price: 9,
     description: 'Perfect for a occasional use',
     items: [
       '5 PDF summaries per month',
@@ -15,7 +15,7 @@ export const pricing_Plans = [
       'Email support',
     ],
     paymentLink: isDev
-      ? 'https://buy.stripe.com/test_dRm28t0fY7cN5OAgLv0x202'
+      ? 'https://buy.stripe.com/test_6oUeVf3saeFf4Kw8eZ0x200'
       : '',
     priceId: isDev ? 'price_1RdU5rP4liOuGwhqMNcnPyEt' : '',
   },

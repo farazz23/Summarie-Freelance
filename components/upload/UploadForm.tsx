@@ -31,14 +31,14 @@ const UploadForm = () => {
   const fileInputRef = useRef<HTMLFormElement>(null);
 
   const { startUpload, routeConfig } = useUploadThing('pdfUploader', {
-    // onUploadBegin: ({ file }: any) => {
-    //   toast('Upload has just begun ');
-    // },
     onClientUploadComplete: () => {
       toast('Uploaded successfully!');
     },
     onUploadError: (err: any) => {
       toast('Error occurred while uploading');
+    },
+    onUploadBegin: ({ data }: any) => {
+      toast('Upload has just begun ', data);
     },
   });
 
@@ -83,7 +83,7 @@ const UploadForm = () => {
       const formattedFileName = formatFileNameAsTitle(file.name);
 
       const result = await generatePDFText({
-        fileURL: uploadResp[0].serverData.file.url,
+        fileURL: uploadResp[0].serverData.fileUrl,
         // fileName: file.name,
       });
 
@@ -104,7 +104,7 @@ const UploadForm = () => {
 
       if (data?.summary) {
         storeResult = await storePDFSumaryAction({
-          fileUrl: uploadResp[0].serverData.file.url,
+          fileUrl: uploadResp[0].serverData.fileUrl,
           summary: data?.summary,
           title: formattedFileName,
           fileName: uploadResp[0].serverData.fileName,

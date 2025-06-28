@@ -2,7 +2,9 @@
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
-
+html {
+  scroll-behavior: smooth;
+}
 @theme {
   --font-sand: var(--font-sans), ui-sans-serif, system-ui, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noot Color Emoji';

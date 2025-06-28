@@ -85,27 +85,11 @@ export async function generatePDFSummary({ pdfText, fileName }: { pdfText: strin
       }
     }
 
-
-
-
-
-
-
-
-  } catch (err: any) {
-    console.error("Unable to generate summary:", err.message || err);
-    console.log("The problem ocuurs here....")
-    if (err instanceof Error && err.message == "RATE LIMIT EXCEEDED") {
-      try {
-        summary = await generateSummaryFromGeminiAI(pdfText);
-        console.log("Summary from OpenAI Text:", summary);
-      } catch (geminiError) {
-        console.log("Gemini API failed after OpenAI quota exceeded: ", geminiError)
-        throw new Error("Unable to Generate PDF at this time")
-      }
-    }
   }
-
+  catch (err: any) {
+    console.log("Error Occur :", err);
+    throw new Error;
+  }
 
   //TODO: if something wrong happens.... 
   if (!summary) {
